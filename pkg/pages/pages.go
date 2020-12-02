@@ -2,6 +2,7 @@ package pages
 
 import (
 	"encoding/json"
+	"github.com/lozovoya/gohomework15_4/pkg/pages/DTO"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -54,13 +55,31 @@ func (p *Service) AddPage (w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Service) GetPages (w http.ResponseWriter, r *http.Request) {
-	//pages := make([]*pages2.PageDTO, 0)
-	for _, page := range p.Pages {
-		log.Println(page.Name)
-		//pages.
+	pages := make([]dto.PagesDTO, len(p.Pages))
+	if len(pages) == 0 {
+		log.Println("no pages available")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("no pages available"))
 	}
-	w.Write([]byte("get pages"))
-	//body, err :=  json.Marshal()
+
+	for i, page := range p.Pages {
+		log.Println(page.Name)
+		pages[i].Id = page.Id
+		pages[i].Name = page.Name
+		pages[i].Pic = page.Pic
+		pages[i].Created = page.Created
+	}
+
+	body, err := json.Marshal(pages)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+
+	return
 }
 
 

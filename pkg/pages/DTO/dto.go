@@ -1,4 +1,4 @@
-package pages
+package dto
 
 import "time"
 
@@ -13,5 +13,12 @@ type PageDTO struct {
 	Name string `json:"name"`
 	Pic string `json:"pic"`
 	Article string `json:"article"`
+	Created time.Time `json:"created"`
+}
+
+type PagesDTO struct {
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Pic string `json:"pic"`
 	Created time.Time `json:"created"`
 }
