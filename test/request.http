@@ -1,0 +1,38 @@
+
+###
+GET http://localhost:9999/ok
+
+###
+PUT http://localhost:9999/AddPage
+Content-Type: application/json
+
+{
+  "name":"Article1",
+  "pic":"http://www.url1.ru",
+  "article":"text1text1text1"
+}
+
+###
+PUT http://localhost:9999/AddPage
+Content-Type: application/json
+
+{
+  "name":"Article2",
+  "pic":"http://www.url2.ru",
+  "article":"text2text2text2"
+}
+
+###
+PUT http://localhost:9999/AddPage
+Content-Type: application/json
+
+{
+  "name":"Article3",
+  "pic":"http://www.url3.ru",
+  "article":"text3text3text3"
+}
+###
+GET http://localhost:9999/fff
+
+###
+GET http://localhost:9999/GetPages
