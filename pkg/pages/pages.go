@@ -31,6 +31,12 @@ func (p *Service) Ok (w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("ok"))
 }
 
+func (p *Service) SendReply (respBody []byte, httpCode int, ContentType string, w http.ResponseWriter,) {
+	w.Header().Set("Content-Type", ContentType)
+	w.WriteHeader(httpCode)
+	w.Write(respBody)
+}
+
 func (p *Service) AddPage (w http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -49,8 +55,12 @@ func (p *Service) AddPage (w http.ResponseWriter, r *http.Request) {
 	page.Created = time.Now()
 
 	p.Pages = append(p.Pages, page)
-	w.WriteHeader(200)
-	w.Write([]byte("page is added"))
+	respBody, err := json.Marshal(page)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	p.SendReply(respBody, 201, "application/json", w)
 	return
 }
 
@@ -70,15 +80,12 @@ func (p *Service) GetPages (w http.ResponseWriter, r *http.Request) {
 		pages[i].Created = page.Created
 	}
 
-	body, err := json.Marshal(pages)
+	respBody, err := json.Marshal(pages)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(body)
-
+	p.SendReply(respBody, 200, "application/json", w)
 	return
 }
 

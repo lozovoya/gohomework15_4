@@ -3,7 +3,7 @@
 GET http://localhost:9999/ok
 
 ###
-PUT http://localhost:9999/AddPage
+POST http://localhost:9999/pages
 Content-Type: application/json
 
 {
@@ -13,7 +13,7 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:9999/AddPage
+POST http://localhost:9999/pages
 Content-Type: application/json
 
 {
@@ -23,7 +23,7 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:9999/AddPage
+POST http://localhost:9999/pages
 Content-Type: application/json
 
 {

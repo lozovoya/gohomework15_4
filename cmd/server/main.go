@@ -39,7 +39,7 @@ func execute (addr string) error {
 	pages := pages2.NewService()
 
 	rmux.RegisterPlain(remux.GET, "/ok", http.HandlerFunc(pages.Ok), loggerMd)
-	rmux.RegisterPlain(remux.PUT, "/AddPage", http.HandlerFunc(pages.AddPage), loggerMd)
+	rmux.RegisterPlain(remux.POST, "/pages", http.HandlerFunc(pages.AddPage), loggerMd)
 	rmux.RegisterPlain(remux.GET, "/GetPages", http.HandlerFunc(pages.GetPages), loggerMd)
 
 	log.Fatal(http.ListenAndServe(addr, rmux))
