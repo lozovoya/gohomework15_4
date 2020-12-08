@@ -38,4 +38,27 @@ GET http://localhost:9999/fff
 GET http://localhost:9999/pages
 
 ###
-GET http://localhost:9999/pages/:1
+GET http://localhost:9999/pages/:3
+
+###
+PUT http://localhost:9999/pages/:1
+Content-Type: application/json
+
+{
+  "name":"Article4",
+  "pic":"http://www.url4.ru",
+  "article":"text4text4text4"
+}
+
+###
+GET http://localhost:9999/pages/:6
+
+###
+PUT http://localhost:9999/pages/:10
+Content-Type: application/json
+
+{
+  "name":"Article4",
+  "pic":"http://www.url4.ru",
+  "article":"text4text4text4"
+}

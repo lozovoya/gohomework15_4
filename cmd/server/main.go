@@ -48,7 +48,7 @@ func execute (addr string) error {
 		return err
 	}
 	rmux.RegisterRegex(remux.GET, regex, http.HandlerFunc(pages.GetPageById), loggerMd)
-	//rmux.RegisterRegex(remux.PUT, regex, http.HandlerFunc(pages.UpdatePageById), loggerMd)
+	rmux.RegisterRegex(remux.PUT, regex, http.HandlerFunc(pages.UpdatePageById), loggerMd)
 
 	log.Fatal(http.ListenAndServe(addr, rmux))
 

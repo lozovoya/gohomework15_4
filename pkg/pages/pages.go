@@ -109,20 +109,93 @@ func (p *Service) GetPageById (w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var page dto.PageDTO
-	page.Id = id
-	page.Name = p.Pages[id].Name
-	page.Pic = p.Pages[id].Pic
-	page.Article = p.Pages[id].Article
-	page.Created = p.Pages[id].Created
+	for _, singlePage := range p.Pages {
+		if singlePage.Id == id {
+			var respPage dto.PageDTO
+			respPage.Id = id
+			respPage.Name = singlePage.Name
+			respPage.Pic = singlePage.Pic
+			respPage.Article = singlePage.Article
+			respPage.Created = singlePage.Created
 
-	respBody, err := json.Marshal(page)
+			respBody, err := json.Marshal(respPage)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			p.SendReply(respBody, 200, "application/json", w)
+			return
+		}
+	}
+
+	respBody, err := json.Marshal("No page with such id")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	p.SendReply(respBody, 200, "text/plain", w)
+	return
+}
+
+func (p *Service) UpdatePageById (w http.ResponseWriter, r *http.Request) {
+	params, err := remux.PathParams(r.Context())
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	p.SendReply(respBody, 200, "application/json", w)
+	id, err := strconv.Atoi(params.Named["id"])
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	var inPage *Page
+	err = json.Unmarshal(body, &inPage)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	for _, singlePage := range p.Pages {
+		if singlePage.Id == id {
+
+			singlePage.Name = inPage.Name
+			singlePage.Pic = inPage.Pic
+			singlePage.Article = inPage.Article
+
+			var respPage dto.PageDTO
+			respPage.Id = id
+			respPage.Name = singlePage.Name
+			respPage.Pic = singlePage.Pic
+			respPage.Article = singlePage.Article
+			respPage.Created = singlePage.Created
+
+			respBody, err := json.Marshal(respPage)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			p.SendReply(respBody, 200, "application/json", w)
+			return
+		}
+	}
+
+	respBody, err := json.Marshal("No page with such id")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	p.SendReply(respBody, 200, "plain/text", w)
 	return
+
 }
 
