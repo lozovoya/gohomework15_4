@@ -39,7 +39,6 @@ func execute (addr string) error {
 	loggerMd := logger.Logger
 	pages := pages2.NewService()
 
-	rmux.RegisterPlain(remux.GET, "/ok", http.HandlerFunc(pages.Ok), loggerMd)
 	rmux.RegisterPlain(remux.POST, "/pages", http.HandlerFunc(pages.AddPage), loggerMd)
 	rmux.RegisterPlain(remux.GET, "/pages", http.HandlerFunc(pages.GetPages), loggerMd)
 
@@ -49,6 +48,7 @@ func execute (addr string) error {
 	}
 	rmux.RegisterRegex(remux.GET, regex, http.HandlerFunc(pages.GetPageById), loggerMd)
 	rmux.RegisterRegex(remux.PUT, regex, http.HandlerFunc(pages.UpdatePageById), loggerMd)
+	rmux.RegisterRegex(remux.DELETE, regex, http.HandlerFunc(pages.DeletePageById), loggerMd)
 
 	log.Fatal(http.ListenAndServe(addr, rmux))
 

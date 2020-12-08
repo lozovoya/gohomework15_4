@@ -1,7 +1,4 @@
-
-###
-GET http://localhost:9999/ok
-
+### Добавить страницу
 ###
 POST http://localhost:9999/pages
 Content-Type: application/json
@@ -12,6 +9,7 @@ Content-Type: application/json
   "article":"text1text1text1"
 }
 
+### Добавить страницу
 ###
 POST http://localhost:9999/pages
 Content-Type: application/json
@@ -22,6 +20,7 @@ Content-Type: application/json
   "article":"text2text2text2"
 }
 
+### Добавить страницу
 ###
 POST http://localhost:9999/pages
 Content-Type: application/json
@@ -31,15 +30,20 @@ Content-Type: application/json
   "pic":"http://www.url3.ru",
   "article":"text3text3text3"
 }
+
+### Несуществующий url
 ###
 GET http://localhost:9999/fff
 
+### Запрос всех страниц
 ###
 GET http://localhost:9999/pages
 
+### Запрос страницы с id
 ###
 GET http://localhost:9999/pages/:3
 
+### Обновление страницы по id
 ###
 PUT http://localhost:9999/pages/:1
 Content-Type: application/json
@@ -50,9 +54,11 @@ Content-Type: application/json
   "article":"text4text4text4"
 }
 
+### Запрос страницы с несуществующим id
 ###
-GET http://localhost:9999/pages/:6
+GET http://localhost:9999/pages/:60
 
+### Обновление страницы с несуществующим id
 ###
 PUT http://localhost:9999/pages/:10
 Content-Type: application/json
@@ -62,3 +68,15 @@ Content-Type: application/json
   "pic":"http://www.url4.ru",
   "article":"text4text4text4"
 }
+
+### Удаление страницы по id
+###
+DELETE http://localhost:9999/pages/:2
+
+### Удаление страницы c несуществующим id
+###
+DELETE http://localhost:9999/pages/:222
+
+### Запрос всех страниц
+###
+GET http://localhost:9999/pages

@@ -42,10 +42,6 @@ func (p *Service) SendReply (respBody []byte, httpCode int, ContentType string, 
 	return
 }
 
-func (p *Service) Ok (w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("ok"))
-}
-
 func (p *Service) AddPage (w http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -60,7 +56,13 @@ func (p *Service) AddPage (w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	page.Id = len(p.Pages) + 1
+
+	if len(p.Pages) == 0 {
+		page.Id = 1
+	} else {
+		page.Id = p.Pages[len(p.Pages) - 1].Id + 1
+	}
+
 	page.Created = time.Now()
 
 	p.Pages = append(p.Pages, page)
@@ -199,3 +201,41 @@ func (p *Service) UpdatePageById (w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (p *Service) DeletePageById (w http.ResponseWriter, r *http.Request) {
+	params, err := remux.PathParams(r.Context())
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	id, err := strconv.Atoi(params.Named["id"])
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	for i, singlePage := range p.Pages {
+		if singlePage.Id == id {
+
+			p.Pages = append(p.Pages[:i], p.Pages[i+1:]...)
+
+			respBody, err := json.Marshal("")
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			p.SendReply(respBody, 204, "plain/text", w)
+			return
+		}
+	}
+
+	respBody, err := json.Marshal("No page with such id")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	p.SendReply(respBody, 200, "plain/text", w)
+	return
+
+}
