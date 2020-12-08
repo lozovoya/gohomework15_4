@@ -57,6 +57,16 @@ func (p *Service) AddPage (w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if (page.Name == "") || (page.Pic == "") || (page.Article == "") {
+		respBody, err := json.Marshal("some field id empty")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		p.SendReply(respBody, 400, "text/plain", w)
+		return
+	}
+
 	if len(p.Pages) == 0 {
 		page.Id = 1
 	} else {
@@ -79,7 +89,12 @@ func (p *Service) GetPages (w http.ResponseWriter, r *http.Request) {
 	pages := make([]dto.PagesDTO, len(p.Pages))
 	if len(pages) == 0 {
 		log.Println("no pages available")
-		p.SendReply([]byte("no pages available"), 200, "text/plain", w)
+		respBody, err := json.Marshal("no pages available")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		p.SendReply(respBody, 200, "text/plain", w)
 	}
 
 	for i, page := range p.Pages {

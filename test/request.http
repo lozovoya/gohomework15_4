@@ -80,3 +80,14 @@ DELETE http://localhost:9999/pages/:222
 ### Запрос всех страниц
 ###
 GET http://localhost:9999/pages
+
+### Добавление кривой страницы
+###
+POST http://localhost:9999/pages
+Content-Type: application/json
+
+{
+  "name":"",
+  "pic":"",
+  "article":"text1text1text1"
+}
