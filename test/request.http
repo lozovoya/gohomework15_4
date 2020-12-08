@@ -35,4 +35,7 @@ Content-Type: application/json
 GET http://localhost:9999/fff
 
 ###
-GET http://localhost:9999/GetPages
+GET http://localhost:9999/pages
+
+###
+GET http://localhost:9999/pages/:1

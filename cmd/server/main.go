@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"regexp"
 
 	"github.com/lozovoya/gohomework15_3/pkg/remux"
 )
@@ -40,7 +41,14 @@ func execute (addr string) error {
 
 	rmux.RegisterPlain(remux.GET, "/ok", http.HandlerFunc(pages.Ok), loggerMd)
 	rmux.RegisterPlain(remux.POST, "/pages", http.HandlerFunc(pages.AddPage), loggerMd)
-	rmux.RegisterPlain(remux.GET, "/GetPages", http.HandlerFunc(pages.GetPages), loggerMd)
+	rmux.RegisterPlain(remux.GET, "/pages", http.HandlerFunc(pages.GetPages), loggerMd)
+
+	regex, err := regexp.Compile("^/pages/:(?P<id>\\d+)$")
+	if err != nil {
+		return err
+	}
+	rmux.RegisterRegex(remux.GET, regex, http.HandlerFunc(pages.GetPageById), loggerMd)
+	//rmux.RegisterRegex(remux.PUT, regex, http.HandlerFunc(pages.UpdatePageById), loggerMd)
 
 	log.Fatal(http.ListenAndServe(addr, rmux))
 

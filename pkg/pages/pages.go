@@ -2,10 +2,12 @@ package pages
 
 import (
 	"encoding/json"
+	"github.com/lozovoya/gohomework15_3/pkg/remux"
 	"github.com/lozovoya/gohomework15_4/pkg/pages/DTO"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -27,14 +29,21 @@ func NewService() *Service {
 	}
 }
 
-func (p *Service) Ok (w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("ok"))
-}
+
 
 func (p *Service) SendReply (respBody []byte, httpCode int, ContentType string, w http.ResponseWriter,) {
 	w.Header().Set("Content-Type", ContentType)
 	w.WriteHeader(httpCode)
-	w.Write(respBody)
+	_, err := w.Write(respBody)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	return
+}
+
+func (p *Service) Ok (w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("ok"))
 }
 
 func (p *Service) AddPage (w http.ResponseWriter, r *http.Request) {
@@ -68,12 +77,10 @@ func (p *Service) GetPages (w http.ResponseWriter, r *http.Request) {
 	pages := make([]dto.PagesDTO, len(p.Pages))
 	if len(pages) == 0 {
 		log.Println("no pages available")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("no pages available"))
+		p.SendReply([]byte("no pages available"), 200, "text/plain", w)
 	}
 
 	for i, page := range p.Pages {
-		log.Println(page.Name)
 		pages[i].Id = page.Id
 		pages[i].Name = page.Name
 		pages[i].Pic = page.Pic
@@ -89,4 +96,33 @@ func (p *Service) GetPages (w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func (p *Service) GetPageById (w http.ResponseWriter, r *http.Request) {
+	params, err := remux.PathParams(r.Context())
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	id, err := strconv.Atoi(params.Named["id"])
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	var page dto.PageDTO
+	page.Id = id
+	page.Name = p.Pages[id].Name
+	page.Pic = p.Pages[id].Pic
+	page.Article = p.Pages[id].Article
+	page.Created = p.Pages[id].Created
+
+	respBody, err := json.Marshal(page)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	p.SendReply(respBody, 200, "application/json", w)
+	return
+}
 
