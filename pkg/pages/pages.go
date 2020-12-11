@@ -2,6 +2,7 @@ package pages
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/lozovoya/gohomework15_3/pkg/remux"
 	"github.com/lozovoya/gohomework15_4/pkg/pages/DTO"
 	"io/ioutil"
@@ -9,6 +10,10 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+)
+
+var (
+	HttpReplyError = errors.New("http reply error")
 )
 
 type Page struct {
@@ -31,15 +36,14 @@ func NewService() *Service {
 
 
 
-func (p *Service) SendReply (respBody []byte, httpCode int, ContentType string, w http.ResponseWriter,) {
+func (p *Service) SendReply (respBody []byte, httpCode int, ContentType string, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", ContentType)
 	w.WriteHeader(httpCode)
 	_, err := w.Write(respBody)
 	if err != nil {
-		log.Println(err)
-		return
+		return HttpReplyError
 	}
-	return
+	return nil
 }
 
 func (p *Service) AddPage (w http.ResponseWriter, r *http.Request) {
@@ -63,7 +67,10 @@ func (p *Service) AddPage (w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			return
 		}
-		p.SendReply(respBody, 400, "text/plain", w)
+		err = p.SendReply(respBody, 400, "text/plain", w)
+		if err != nil {
+			log.Println(err)
+		}
 		return
 	}
 
@@ -81,7 +88,11 @@ func (p *Service) AddPage (w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	p.SendReply(respBody, 201, "application/json", w)
+	err = p.SendReply(respBody, 201, "application/json", w)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	return
 }
 
@@ -94,7 +105,11 @@ func (p *Service) GetPages (w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			return
 		}
-		p.SendReply(respBody, 200, "text/plain", w)
+		err = p.SendReply(respBody, 200, "text/plain", w)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 
 	for i, page := range p.Pages {
@@ -109,7 +124,10 @@ func (p *Service) GetPages (w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	p.SendReply(respBody, 200, "application/json", w)
+	err = p.SendReply(respBody, 200, "application/json", w)
+	if err != nil {
+		log.Println(err)
+	}
 	return
 }
 
@@ -141,7 +159,10 @@ func (p *Service) GetPageById (w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			p.SendReply(respBody, 200, "application/json", w)
+			err = p.SendReply(respBody, 200, "application/json", w)
+			if err != nil {
+				log.Println(err)
+			}
 			return
 		}
 	}
@@ -151,7 +172,10 @@ func (p *Service) GetPageById (w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	p.SendReply(respBody, 200, "text/plain", w)
+	err = p.SendReply(respBody, 200, "text/plain", w)
+	if err != nil {
+		log.Println(err)
+	}
 	return
 }
 
@@ -201,7 +225,10 @@ func (p *Service) UpdatePageById (w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			p.SendReply(respBody, 200, "application/json", w)
+			err = p.SendReply(respBody, 200, "application/json", w)
+			if err != nil {
+				log.Println(err)
+			}
 			return
 		}
 	}
@@ -211,7 +238,10 @@ func (p *Service) UpdatePageById (w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	p.SendReply(respBody, 200, "plain/text", w)
+	err = p.SendReply(respBody, 200, "plain/text", w)
+	if err != nil {
+		log.Println(err)
+	}
 	return
 
 }
@@ -240,7 +270,10 @@ func (p *Service) DeletePageById (w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			p.SendReply(respBody, 204, "plain/text", w)
+			err = p.SendReply(respBody, 204, "plain/text", w)
+			if err != nil {
+				log.Println(err)
+			}
 			return
 		}
 	}
@@ -250,7 +283,10 @@ func (p *Service) DeletePageById (w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	p.SendReply(respBody, 200, "plain/text", w)
+	err = p.SendReply(respBody, 200, "plain/text", w)
+	if err != nil {
+		log.Println(err)
+	}
 	return
 
 }
