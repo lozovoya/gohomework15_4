@@ -39,16 +39,31 @@ func execute (addr string) error {
 	loggerMd := logger.Logger
 	pages := pages2.NewService()
 
-	rmux.RegisterPlain(remux.POST, "/pages", http.HandlerFunc(pages.AddPage), loggerMd)
-	rmux.RegisterPlain(remux.GET, "/pages", http.HandlerFunc(pages.GetPages), loggerMd)
+	if err := rmux.RegisterPlain(remux.POST, "/pages", http.HandlerFunc(pages.AddPage), loggerMd);
+	err != nil {
+		return err
+	}
+	if err := rmux.RegisterPlain(remux.GET, "/pages", http.HandlerFunc(pages.GetPages), loggerMd);
+		err != nil {
+		return err
+	}
 
 	regex, err := regexp.Compile("^/pages/:(?P<id>\\d+)$")
 	if err != nil {
 		return err
 	}
-	rmux.RegisterRegex(remux.GET, regex, http.HandlerFunc(pages.GetPageById), loggerMd)
-	rmux.RegisterRegex(remux.PUT, regex, http.HandlerFunc(pages.UpdatePageById), loggerMd)
-	rmux.RegisterRegex(remux.DELETE, regex, http.HandlerFunc(pages.DeletePageById), loggerMd)
+	if err := rmux.RegisterRegex(remux.GET, regex, http.HandlerFunc(pages.GetPageById), loggerMd);
+	err != nil {
+		return err
+	}
+	if err := rmux.RegisterRegex(remux.PUT, regex, http.HandlerFunc(pages.UpdatePageById), loggerMd);
+	err != nil {
+		return err
+	}
+	if err := rmux.RegisterRegex(remux.DELETE, regex, http.HandlerFunc(pages.DeletePageById), loggerMd);
+	err != nil {
+		return err
+	}
 
 	log.Fatal(http.ListenAndServe(addr, rmux))
 
