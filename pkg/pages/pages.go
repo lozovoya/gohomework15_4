@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/lozovoya/gohomework15_3/pkg/remux"
 	"github.com/lozovoya/gohomework15_4/pkg/pages/DTO"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -17,10 +16,10 @@ var (
 )
 
 type Page struct {
-	Id int `json:"id"`
-	Name string `json:"name"`
-	Pic string `json:"pic"`
-	Article string `json:"article"`
+	Id      int       `json:"id"`
+	Name    string    `json:"name"`
+	Pic     string    `json:"pic"`
+	Article string    `json:"article"`
 	Created time.Time `json:"created"`
 }
 
@@ -34,42 +33,30 @@ func NewService() *Service {
 	}
 }
 
-
-
-func (p *Service) SendReply (respBody []byte, httpCode int, ContentType string, w http.ResponseWriter) error {
+func (p *Service) SendReply(body interface{}, httpCode int, ContentType string, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", ContentType)
 	w.WriteHeader(httpCode)
-	_, err := w.Write(respBody)
+	err := json.NewEncoder(w).Encode(body)
 	if err != nil {
 		return HttpReplyError
 	}
 	return nil
 }
 
-func (p *Service) AddPage (w http.ResponseWriter, r *http.Request) {
-
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+func (p *Service) AddPage(w http.ResponseWriter, r *http.Request) {
 
 	var page *Page
-	err = json.Unmarshal(body, &page)
+	err := json.NewDecoder(r.Body).Decode(&page)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
 	if (page.Name == "") || (page.Pic == "") || (page.Article == "") {
-		respBody, err := json.Marshal("some field id empty")
+		err = p.SendReply("some field is empty", 400, "text/plain", w)
 		if err != nil {
 			log.Println(err)
 			return
-		}
-		err = p.SendReply(respBody, 400, "text/plain", w)
-		if err != nil {
-			log.Println(err)
 		}
 		return
 	}
@@ -77,35 +64,25 @@ func (p *Service) AddPage (w http.ResponseWriter, r *http.Request) {
 	if len(p.Pages) == 0 {
 		page.Id = 1
 	} else {
-		page.Id = p.Pages[len(p.Pages) - 1].Id + 1
+		page.Id = p.Pages[len(p.Pages)-1].Id + 1
 	}
 
 	page.Created = time.Now()
-
 	p.Pages = append(p.Pages, page)
-	respBody, err := json.Marshal(page)
+	err = p.SendReply(page, 201, "application/json", w)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	err = p.SendReply(respBody, 201, "application/json", w)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+
 	return
 }
 
-func (p *Service) GetPages (w http.ResponseWriter, r *http.Request) {
+func (p *Service) GetPages(w http.ResponseWriter, r *http.Request) {
 	pages := make([]dto.PagesDTO, len(p.Pages))
 	if len(pages) == 0 {
 		log.Println("no pages available")
-		respBody, err := json.Marshal("no pages available")
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		err = p.SendReply(respBody, 200, "text/plain", w)
+		err := p.SendReply("no pages available", 200, "text/plain", w)
 		if err != nil {
 			log.Println(err)
 			return
@@ -119,19 +96,16 @@ func (p *Service) GetPages (w http.ResponseWriter, r *http.Request) {
 		pages[i].Created = page.Created
 	}
 
-	respBody, err := json.Marshal(pages)
+	err := p.SendReply(pages, 200, "application/json", w)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	err = p.SendReply(respBody, 200, "application/json", w)
-	if err != nil {
-		log.Println(err)
-	}
+
 	return
 }
 
-func (p *Service) GetPageById (w http.ResponseWriter, r *http.Request) {
+func (p *Service) GetPageById(w http.ResponseWriter, r *http.Request) {
 	params, err := remux.PathParams(r.Context())
 	if err != nil {
 		log.Println(err)
@@ -153,33 +127,26 @@ func (p *Service) GetPageById (w http.ResponseWriter, r *http.Request) {
 			respPage.Article = singlePage.Article
 			respPage.Created = singlePage.Created
 
-			respBody, err := json.Marshal(respPage)
+			err := p.SendReply(respPage, 200, "application/json", w)
 			if err != nil {
 				log.Println(err)
 				return
 			}
 
-			err = p.SendReply(respBody, 200, "application/json", w)
-			if err != nil {
-				log.Println(err)
-			}
 			return
 		}
 	}
 
-	respBody, err := json.Marshal("No page with such id")
+	err = p.SendReply("No page with such id", 200, "text/plain", w)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	err = p.SendReply(respBody, 200, "text/plain", w)
-	if err != nil {
-		log.Println(err)
-	}
+
 	return
 }
 
-func (p *Service) UpdatePageById (w http.ResponseWriter, r *http.Request) {
+func (p *Service) UpdatePageById(w http.ResponseWriter, r *http.Request) {
 	params, err := remux.PathParams(r.Context())
 	if err != nil {
 		log.Println(err)
@@ -192,14 +159,8 @@ func (p *Service) UpdatePageById (w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
 	var inPage *Page
-	err = json.Unmarshal(body, &inPage)
+	err = json.NewDecoder(r.Body).Decode(&inPage)
 	if err != nil {
 		log.Println(err)
 		return
@@ -219,34 +180,27 @@ func (p *Service) UpdatePageById (w http.ResponseWriter, r *http.Request) {
 			respPage.Article = singlePage.Article
 			respPage.Created = singlePage.Created
 
-			respBody, err := json.Marshal(respPage)
+			err = p.SendReply(respPage, 200, "application/json", w)
 			if err != nil {
 				log.Println(err)
 				return
 			}
 
-			err = p.SendReply(respBody, 200, "application/json", w)
-			if err != nil {
-				log.Println(err)
-			}
 			return
 		}
 	}
 
-	respBody, err := json.Marshal("No page with such id")
+	err = p.SendReply("No page with such id", 200, "plain/text", w)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	err = p.SendReply(respBody, 200, "plain/text", w)
-	if err != nil {
-		log.Println(err)
-	}
+
 	return
 
 }
 
-func (p *Service) DeletePageById (w http.ResponseWriter, r *http.Request) {
+func (p *Service) DeletePageById(w http.ResponseWriter, r *http.Request) {
 	params, err := remux.PathParams(r.Context())
 	if err != nil {
 		log.Println(err)
@@ -261,32 +215,23 @@ func (p *Service) DeletePageById (w http.ResponseWriter, r *http.Request) {
 
 	for i, singlePage := range p.Pages {
 		if singlePage.Id == id {
-
 			p.Pages = append(p.Pages[:i], p.Pages[i+1:]...)
-
-			respBody, err := json.Marshal("")
+			err = p.SendReply("page deleted", 204, "plain/text", w)
 			if err != nil {
 				log.Println(err)
 				return
 			}
 
-			err = p.SendReply(respBody, 204, "plain/text", w)
-			if err != nil {
-				log.Println(err)
-			}
 			return
 		}
 	}
 
-	respBody, err := json.Marshal("No page with such id")
+	err = p.SendReply("No page with such id", 200, "plain/text", w)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	err = p.SendReply(respBody, 200, "plain/text", w)
-	if err != nil {
-		log.Println(err)
-	}
+
 	return
 
 }
