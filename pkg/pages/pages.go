@@ -166,19 +166,19 @@ func (p *Service) UpdatePageById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, singlePage := range p.Pages {
-		if singlePage.Id == id {
+	for i, _ := range p.Pages {
+		if p.Pages[i].Id == id {
 
-			singlePage.Name = inPage.Name
-			singlePage.Pic = inPage.Pic
-			singlePage.Article = inPage.Article
+			p.Pages[i].Name = inPage.Name
+			p.Pages[i].Pic = inPage.Pic
+			p.Pages[i].Article = inPage.Article
 
 			var respPage dto.PageDTO
 			respPage.Id = id
-			respPage.Name = singlePage.Name
-			respPage.Pic = singlePage.Pic
-			respPage.Article = singlePage.Article
-			respPage.Created = singlePage.Created
+			respPage.Name = p.Pages[i].Name
+			respPage.Pic = p.Pages[i].Pic
+			respPage.Article = p.Pages[i].Article
+			respPage.Created = p.Pages[i].Created
 
 			err = p.SendReply(respPage, 200, "application/json", w)
 			if err != nil {
